@@ -15,6 +15,9 @@ const US_HISTORY_API_URL = "https://covidtracking.com/api/v1/states/daily.json";
 const margin = { left: 50, top: 20, bottom: 20, right: 5 };
 const [VIZ_HEIGHT, VIZ_WIDTH] = [300, 700];
 
+let toPercentage = (num, totalNum) =>
+  ((num / totalNum) * 100).toFixed(0).concat("%");
+
 let formattedNumber = num => {
   let str = num.toString();
   let length = str.length;
@@ -118,24 +121,40 @@ let updateTestResults = data => {
     { positive: 0, negative: 0 }
   );
 
-  let testResults = [testResultsObj.positive, testResultsObj.negative];
+  let totalTestResults = testResultsObj.positive + testResultsObj.negative;
+  let totalPositive = testResultsObj.positive;
+  let totalNegative = testResultsObj.negative;
 
-  let totalTestResults = testResults[0] + testResults[1];
-
-  let arcGenerator = arc();
-  let colorGenerator = scaleOrdinal(schemeSet1);
-
-  let formattedTestResults = pie()(testResults).map((d, index) => {
-    return {
-      ...d,
-      path: arcGenerator({ innerRadius: 0, outerRadius: 150, ...d }),
-      fill: colorGenerator(index),
-      percentage: ((testResults[index] / totalTestResults) * 100).toFixed(1)
-    };
-  });
+  let formattedTestResults = [
+    {
+      id: "Positive",
+      label: "Positive",
+      value: totalPositive,
+      tooltipLabel: `${formattedNumber(totalPositive)} (${toPercentage(
+        totalPositive,
+        totalTestResults
+      )})`,
+      sliceLabel: toPercentage(totalPositive, totalTestResults)
+    },
+    {
+      id: "Negative",
+      label: "Negative",
+      value: totalNegative,
+      tooltipLabel: `${formattedNumber(totalNegative)} (${toPercentage(
+        totalNegative,
+        totalTestResults
+      )})`,
+      sliceLabel: toPercentage(totalNegative, totalTestResults)
+    }
+  ];
 
   writeJsonSync(path.join(PUBLIC_PATH, "totalTestResults.json"), {
-    data: { testResults: formattedTestResults, totalTestResults }
+    data: {
+      testResults: formattedTestResults,
+      totalTestResults,
+      totalPositive,
+      totalNegative
+    }
   });
 
   console.log("Wrote totalTestResults.json...");
@@ -152,37 +171,30 @@ let updateHospitalized = data => {
     { hospitalized: 0, deaths: 0 }
   );
 
-  let results = [hospitalizedObj.hospitalized, hospitalizedObj.deaths];
-  let totalResults = results[0] + results[1];
-
   let totalHospitalized = hospitalizedObj.hospitalized;
   let totalDeaths = hospitalizedObj.deaths;
-  // let arcGenerator = arc();
-  // let colorGenerator = scaleOrdinal(schemeSet1);
+  let totalAlive = totalHospitalized - totalDeaths;
 
-  // let formattedHospitalized = pie()(results).map((d, index) => {
-  //   return {
-  //     ...d,
-  //     path: arcGenerator({ innerRadius: 0, outerRadius: 150, ...d }),
-  //     fill: colorGenerator(index),
-  //     percentage: ((results[index] / totalResults) * 100).toFixed(1)
-  //   };
-  // });
-  //
   let formattedHospitalized = [
     {
       id: "Alive",
       label: "Alive",
-      value: hospitalizedObj.hospitalized - hospitalizedObj.deaths,
-      sliceLabel: formattedNumber(
-        hospitalizedObj.hospitalized - hospitalizedObj.deaths
-      )
+      value: totalAlive,
+      tooltipLabel: `${formattedNumber(totalAlive)} (${toPercentage(
+        totalAlive,
+        totalHospitalized
+      )})`,
+      sliceLabel: toPercentage(totalAlive, totalHospitalized)
     },
     {
       id: "Deceased",
       label: "Deceased",
-      value: hospitalizedObj.deaths,
-      sliceLabel: formattedNumber(hospitalizedObj.deaths)
+      value: totalDeaths,
+      tooltipLabel: `${formattedNumber(totalDeaths)} (${toPercentage(
+        totalDeaths,
+        totalHospitalized
+      )})`,
+      sliceLabel: toPercentage(totalDeaths, totalHospitalized)
     }
   ];
 
@@ -190,6 +202,7 @@ let updateHospitalized = data => {
     data: {
       hospitalized: formattedHospitalized,
       totalHospitalized,
+      totalAlive,
       totalDeaths
     }
   });
@@ -203,7 +216,7 @@ async function main() {
   let data = await response.json();
 
   // updateDeaths(data);
-  // updateTestResults(data);
+  updateTestResults(data);
   updateHospitalized(data);
 
   console.log(

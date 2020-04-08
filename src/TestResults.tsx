@@ -1,65 +1,113 @@
-import React, { FC, useState, useEffect } from "react";
-import { VIZ_WIDTH, VIZ_HEIGHT } from "./constants";
+import React, { useState, useEffect } from "react";
+import { ResponsivePie } from "@nivo/pie";
 import { formattedNumber } from "./lib";
+import { Table } from "./Table";
 
 export let TestResults = () => {
   let [testResults, setTestResults] = useState([]);
-  let [totalTestResults, setTotalTestResults] = useState<string | null>(null);
+  let [totalTestResults, setTotalTestResults] = useState({
+    testResults: null,
+    positive: null,
+    negative: null
+  });
 
   useEffect(() => {
     async function getData() {
       let response = await fetch(
         process.env.PUBLIC_URL + "/totalTestResults.json"
       );
+
       let {
-        data: { testResults, totalTestResults }
+        data: { testResults, totalTestResults, totalPositive, totalNegative }
       } = await response.json();
 
       setTestResults(testResults);
-      setTotalTestResults(formattedNumber(totalTestResults));
+      setTotalTestResults({
+        testResults: totalTestResults,
+        positive: totalPositive,
+        negative: totalNegative
+      });
     }
 
     getData();
   }, []);
 
-  useEffect(() => {}, [testResults]);
-
   return (
-    <div style={{ margin: "auto", maxWidth: "90vw" }}>
-      <div>
-        <h2>Total U.S Test Results: {totalTestResults}</h2>
-      </div>
+    <div style={{ marginBottom: 50 }}>
+      <h2>Total U.S. Test Results - Positive vs. Negative</h2>
+      <p>
+        Compares the ratio of test results that were positive or negative for
+        coronavirus.
+      </p>
 
-      <div>
-        <h2>U.S Test Results Positive/Negative Ratio</h2>
-      </div>
-      <svg viewBox={`0, 0, ${VIZ_WIDTH}, ${VIZ_HEIGHT + 100}`}>
-        {testResults.map(
-          ({ value, startAngle, path, fill, percentage }, index) => {
-            return (
-              <g
-                key={startAngle}
-                style={{ transform: `translate(200px, 200px)` }}
-              >
-                <path d={path} fill={fill} />
-                <text
-                  key={value}
-                  style={{
-                    fontSize: "10px",
-                    textAnchor: "middle",
-                    fill: "white",
-                    transform: `translate(${index === 0 ? -60 : 10}px, ${
-                      index === 0 ? -70 : 60
-                    }px)`
-                  }}
-                >
-                  {index === 0 ? "Positive" : "Negative"} {percentage}%
-                </text>
-              </g>
-            );
-          }
-        )}
-      </svg>
+      {testResults.length > 0 && (
+        <>
+          <div
+            style={{
+              margin: "auto",
+              marginTop: "2rem",
+              maxWidth: "max-content"
+            }}
+          >
+            <Table
+              headers={[
+                "Total test results",
+                "Total positive",
+                "Total negative"
+              ]}
+              cells={[
+                formattedNumber(totalTestResults.testResults),
+                formattedNumber(totalTestResults.positive),
+                formattedNumber(totalTestResults.negative)
+              ]}
+            />
+          </div>
+          <div style={{ minWidth: "90vw", height: 500 }}>
+            <ResponsivePie
+              data={testResults}
+              margin={{ top: 40, right: 80, bottom: 80, left: 80 }}
+              sortByValue
+              colors={["#679b9b", "#aacfcf"]}
+              borderColor={{ theme: "labels.text.fill" }}
+              radialLabelsSkipAngle={0}
+              radialLabelsTextXOffset={9}
+              radialLabelsTextColor="#333"
+              radialLabelsLinkOffset={0}
+              radialLabelsLinkDiagonalLength={19}
+              radialLabelsLinkHorizontalLength={13}
+              radialLabelsLinkStrokeWidth={1}
+              radialLabelsLinkColor={{ from: "color" }}
+              // @ts-ignore
+              sliceLabel={({ sliceLabel }) => sliceLabel}
+              slicesLabelsSkipAngle={10}
+              slicesLabelsTextWeight={900}
+              slicesLabelsTextColor="#333333"
+              animate={true}
+              motionStiffness={90}
+              motionDamping={15}
+              tooltip={({ label, tooltipLabel }) => (
+                <span>
+                  {label}: <strong>{tooltipLabel}</strong>
+                </span>
+              )}
+              // @ts-ignore
+              legends={[
+                {
+                  anchor: "bottom",
+                  direction: "row",
+                  translateY: 56,
+                  translateX: 36,
+                  itemWidth: 100,
+                  itemHeight: 18,
+                  itemTextColor: "#333",
+                  symbolSize: 18,
+                  symbolShape: "circle"
+                }
+              ]}
+            />
+          </div>
+        </>
+      )}
     </div>
   );
 };

@@ -7,6 +7,7 @@ export let Hospitalized = () => {
   let [hospitalized, setHospitalized] = useState([]);
   let [totalHospitalizedAndDeaths, setTotalHospitalizedAndDeaths] = useState({
     hospitalized: null,
+    alive: null,
     deaths: null
   });
 
@@ -17,24 +18,23 @@ export let Hospitalized = () => {
       );
 
       let {
-        data: { hospitalized, totalHospitalized, totalDeaths }
+        data: { hospitalized, totalHospitalized, totalDeaths, totalAlive }
       } = await response.json();
 
       setHospitalized(hospitalized);
       setTotalHospitalizedAndDeaths({
         hospitalized: totalHospitalized,
-        deaths: totalDeaths
+        deaths: totalDeaths,
+        alive: totalAlive
       });
     }
 
     getData();
   }, []);
 
-  console.log(hospitalized);
-
   return (
-    <div>
-      <h2>Total U.S. Hospitalized Alive vs. Deceased</h2>
+    <div style={{ marginBottom: 50 }}>
+      <h2>Total U.S. Hospitalized - Alive vs. Deceased</h2>
       <p>
         Compares the ratio of people that were hospitalized and still alive with
         the number of deceased.
@@ -48,18 +48,19 @@ export let Hospitalized = () => {
 
       {hospitalized.length > 0 && (
         <>
-          <div style={{ margin: "auto", maxWidth: "max-content" }}>
+          <div
+            style={{
+              margin: "auto",
+              marginTop: "2rem",
+              maxWidth: "max-content"
+            }}
+          >
             <Table
-              headers={["Total hospitalized", "Total alive", "Total deceased"]}
+              headers={["Total hospitalized", "Total deceased", "Total alive"]}
               cells={[
                 formattedNumber(totalHospitalizedAndDeaths.hospitalized),
-                formattedNumber(
-                  // @ts-ignore
-                  totalHospitalizedAndDeaths.hospitalized -
-                    // @ts-ignore
-                    totalHospitalizedAndDeaths.deaths
-                ),
-                formattedNumber(totalHospitalizedAndDeaths.deaths)
+                formattedNumber(totalHospitalizedAndDeaths.deaths),
+                formattedNumber(totalHospitalizedAndDeaths.alive)
               ]}
             />
           </div>
@@ -84,9 +85,9 @@ export let Hospitalized = () => {
               animate={true}
               motionStiffness={90}
               motionDamping={15}
-              tooltip={({ label, sliceLabel }) => (
+              tooltip={({ label, tooltipLabel }) => (
                 <span>
-                  {label}: <strong>{sliceLabel}</strong>
+                  {label}: <strong>{tooltipLabel}</strong>
                 </span>
               )}
               // @ts-ignore
