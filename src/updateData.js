@@ -1,22 +1,37 @@
 let path = require("path");
 let { writeJsonSync } = require("fs-extra");
 let fetch = require("isomorphic-fetch");
-let {
-  scaleOrdinal,
-  schemeSet1,
-  arc,
-  scaleTime,
-  scaleLinear,
-  extent,
-  pie
-} = require("d3");
+// let {
+//   scaleOrdinal,
+//   schemeSet1,
+//   arc,
+//   scaleTime,
+//   scaleLinear,
+//   extent,
+//   pie
+// } = require("d3");
 
 const US_HISTORY_API_URL = "https://covidtracking.com/api/v1/states/daily.json";
 const margin = { left: 50, top: 20, bottom: 20, right: 5 };
 const [VIZ_HEIGHT, VIZ_WIDTH] = [300, 700];
 
-const PUBLIC_PATH = path.join(__dirname, "../public");
+let formattedNumber = num => {
+  let str = num.toString();
+  let length = str.length;
 
+  return [...str]
+    .reduceRight(
+      (formattedStr, char, index) =>
+        (length - index) % 3 === 0 && index !== 0
+          ? [...formattedStr, "," + char]
+          : [...formattedStr, char],
+      []
+    )
+    .reverse()
+    .join("");
+};
+
+const PUBLIC_PATH = path.join(__dirname, "../public");
 let toDateString = dateAsIsoNum =>
   [
     String(dateAsIsoNum).slice(0, 4),
@@ -126,13 +141,70 @@ let updateTestResults = data => {
   console.log("Wrote totalTestResults.json...");
 };
 
+let updateHospitalized = data => {
+  let hospitalizedObj = data.reduce(
+    (resultsObj, { hospitalized, death }) => {
+      return {
+        hospitalized: resultsObj.hospitalized + (hospitalized || 0),
+        deaths: resultsObj.deaths + (death || 0)
+      };
+    },
+    { hospitalized: 0, deaths: 0 }
+  );
+
+  let results = [hospitalizedObj.hospitalized, hospitalizedObj.deaths];
+  let totalResults = results[0] + results[1];
+
+  let totalHospitalized = hospitalizedObj.hospitalized;
+  let totalDeaths = hospitalizedObj.deaths;
+  // let arcGenerator = arc();
+  // let colorGenerator = scaleOrdinal(schemeSet1);
+
+  // let formattedHospitalized = pie()(results).map((d, index) => {
+  //   return {
+  //     ...d,
+  //     path: arcGenerator({ innerRadius: 0, outerRadius: 150, ...d }),
+  //     fill: colorGenerator(index),
+  //     percentage: ((results[index] / totalResults) * 100).toFixed(1)
+  //   };
+  // });
+  //
+  let formattedHospitalized = [
+    {
+      id: "Alive",
+      label: "Alive",
+      value: hospitalizedObj.hospitalized - hospitalizedObj.deaths,
+      sliceLabel: formattedNumber(
+        hospitalizedObj.hospitalized - hospitalizedObj.deaths
+      )
+    },
+    {
+      id: "Deaths",
+      label: "Deaths",
+      value: hospitalizedObj.deaths,
+      sliceLabel: formattedNumber(hospitalizedObj.deaths)
+    }
+  ];
+
+  writeJsonSync(path.join(PUBLIC_PATH, "totalHospitalizedAndDeaths.json"), {
+    data: {
+      hospitalized: formattedHospitalized,
+      totalHospitalized,
+      totalDeaths
+    }
+  });
+
+  console.log("Wrote totalTestHospitalized.json...");
+};
+
 async function main() {
   let response = await fetch(US_HISTORY_API_URL);
 
   let data = await response.json();
 
-  updateDeaths(data);
-  updateTestResults(data);
+  // updateDeaths(data);
+  // updateTestResults(data);
+  updateHospitalized(data);
 
   console.log(
     "\n-------------------------------------------------------------"

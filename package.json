@@ -4,6 +4,8 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@nivo/bar": "^0.61.1",
+    "@nivo/pie": "^0.61.1",
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.3.2",
     "@testing-library/user-event": "^7.1.2",
@@ -14,7 +16,6 @@
     "@types/node": "^12.0.0",
     "@types/react": "^16.9.0",
     "@types/react-dom": "^16.9.0",
-    "d3": "^5.15.1",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-scripts": "3.4.1",
@@ -42,6 +43,7 @@
     ]
   },
   "devDependencies": {
-    "fs-extra": "^9.0.0"
+    "fs-extra": "^9.0.0",
+    "isomorphic-fetch": "^2.2.1"
   }
 }
