@@ -179,8 +179,8 @@ let updateHospitalized = data => {
       )
     },
     {
-      id: "Deaths",
-      label: "Deaths",
+      id: "Deceased",
+      label: "Deceased",
       value: hospitalizedObj.deaths,
       sliceLabel: formattedNumber(hospitalizedObj.deaths)
     }

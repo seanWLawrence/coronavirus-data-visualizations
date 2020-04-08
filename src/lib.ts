@@ -1,4 +1,8 @@
-export let formattedNumber = (num: number): string => {
+export let formattedNumber = (num: number | null): string => {
+  if (num === null) {
+    return "";
+  }
+
   let str = num.toString();
   let length = str.length;
 

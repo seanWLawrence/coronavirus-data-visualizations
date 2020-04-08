@@ -1,1 +1,1 @@
-{"data":{"hospitalized":[{"id":"Alive","label":"Alive","value":296641,"sliceLabel":"296,641"},{"id":"Deaths","label":"Deaths","value":76024,"sliceLabel":"76,024"}],"totalHospitalized":372665,"totalDeaths":76024}}
+{"data":{"hospitalized":[{"id":"Alive","label":"Alive","value":296372,"sliceLabel":"296,372"},{"id":"Deceased","label":"Deceased","value":76024,"sliceLabel":"76,024"}],"totalHospitalized":372396,"totalDeaths":76024}}
