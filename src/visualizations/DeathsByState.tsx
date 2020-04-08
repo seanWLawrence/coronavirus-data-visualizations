@@ -23,8 +23,7 @@ export let DeathsByState = () => {
       );
 
       let {
-        data: { deathsByState, maxDeathsPerState, minDeathsPerState },
-        data
+        data: { deathsByState, maxDeathsPerState, minDeathsPerState }
       } = await deathsResponse.json();
 
       setUsStatesGeo(geoData.features);

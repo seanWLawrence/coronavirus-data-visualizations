@@ -4,13 +4,15 @@ import { ResponsiveBar } from "@nivo/bar";
 import { formattedNumber } from "../lib";
 import { Table } from "../components/Table";
 
-export let DeathsByDate = () => {
+export let DeathsAsOfDate = () => {
   let [deaths, setDeaths] = useState([]);
   let [totalDeaths, setTotalDeaths] = useState(null);
 
   useEffect(() => {
     async function getData() {
-      let response = await fetch(process.env.PUBLIC_URL + "/deathsByDate.json");
+      let response = await fetch(
+        process.env.PUBLIC_URL + "/deathsAsOfDate.json"
+      );
 
       let {
         data: { deaths, totalDeaths }
@@ -25,8 +27,8 @@ export let DeathsByDate = () => {
 
   return (
     <div style={{ marginBottom: 50 }}>
-      <h2>Total U.S. Deaths - By Date</h2>
-      <p>Compares the number of deaths by date.</p>
+      <h2>Total U.S. Deaths - As of Date</h2>
+      <p>Displays the rolling sum of deaths as of specific dates.</p>
 
       {deaths.length > 0 && (
         <>

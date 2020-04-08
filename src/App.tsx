@@ -1,5 +1,5 @@
 import React from "react";
-import { DeathsByDate } from "./visualizations/DeathsByDate";
+import { DeathsAsOfDate } from "./visualizations/DeathsAsOfDate";
 import { DeathsByState } from "./visualizations/DeathsByState";
 import { TestResultsPositiveVsNegative } from "./visualizations/TestResultsPositiveVsNegative";
 import { HospitalizedAliveVsDeceased } from "./visualizations/HospitalizedAliveVsDeceased";
@@ -18,14 +18,14 @@ function App() {
         <p>
           Written by <a href="https://sean-lawrence.com">Sean W. Lawrence</a>{" "}
           using React, TypeScript, Node and Nivo.{" "}
-          <a href="https://giuthub.com/seanWLawrence/coronavirus-data-visualizations">
+          <a href="https://github.com/seanWLawrence/coronavirus-data-visualizations">
             View the open source repository
           </a>
         </p>
       </div>
 
+      <DeathsAsOfDate />
       <DeathsByState />
-      <DeathsByDate />
       <TestResultsPositiveVsNegative />
       <HospitalizedAliveVsDeceased />
     </div>

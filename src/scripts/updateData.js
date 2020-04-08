@@ -43,7 +43,7 @@ let updateDeathsByDate = data => {
     })
     .filter(({ deaths }) => deaths > 100);
 
-  let deathsByDate = Object.entries(
+  let deathsAsOfDate = Object.entries(
     deaths.reduce((result, { date, deaths }) => {
       if (result[date] !== undefined) {
         return {
@@ -59,12 +59,11 @@ let updateDeathsByDate = data => {
     }, {})
   );
 
-  let totalDeaths = deathsByDate.reduce(
-    (totalDeaths, [, deaths]) => totalDeaths + deaths,
-    0
+  let totalDeaths = Math.max(
+    ...deathsAsOfDate.map(([_date, deaths]) => deaths)
   );
 
-  let formattedDeaths = deathsByDate
+  let formattedDeaths = deathsAsOfDate
     .reduce((nodes, [dateString, deaths], index) => {
       return [
         ...nodes,
@@ -80,11 +79,11 @@ let updateDeathsByDate = data => {
     })
     .map(({ date, deaths }) => ({ date, deaths }));
 
-  writeJsonSync(path.join(PUBLIC_PATH, "deathsByDate.json"), {
+  writeJsonSync(path.join(PUBLIC_PATH, "deathsAsOfDate.json"), {
     data: { deaths: formattedDeaths, totalDeaths }
   });
 
-  console.log("Wrote deathsByDate.json...");
+  console.log("Wrote deathsAsOfDate.json...");
 };
 
 let updateDeathsByState = data => {
@@ -99,7 +98,7 @@ let updateDeathsByState = data => {
           ...result,
           [state]: {
             ...result[state],
-            deaths: result[state].deaths + (deaths || 0)
+            deaths: Math.max(result[state].deaths, deaths || 0)
           }
         };
       }
@@ -152,10 +151,14 @@ let updateTestResultsPositiveVsNegative = data => {
   let testResultsObj = data.reduce(
     (resultsObj, { positive, negative }) => {
       return {
-        positive:
-          resultsObj.positive + (typeof positive === "number" ? positive : 0),
-        negative:
-          resultsObj.negative + (typeof negative === "number" ? negative : 0)
+        positive: Math.max(
+          resultsObj.positive,
+          typeof positive === "number" ? positive : 0
+        ),
+        negative: Math.max(
+          resultsObj.negative,
+          typeof negative === "number" ? negative : 0
+        )
       };
     },
     { positive: 0, negative: 0 }
@@ -204,8 +207,8 @@ let updateHospitalizedAliveVsDeceased = data => {
   let hospitalizedObj = data.reduce(
     (resultsObj, { hospitalized, death }) => {
       return {
-        hospitalized: resultsObj.hospitalized + (hospitalized || 0),
-        deaths: resultsObj.deaths + (death || 0)
+        hospitalized: Math.max(resultsObj.hospitalized, hospitalized || 0),
+        deaths: Math.max(resultsObj.deaths, death || 0)
       };
     },
     { hospitalized: 0, deaths: 0 }
