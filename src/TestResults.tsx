@@ -67,7 +67,8 @@ export let TestResults = () => {
               data={testResults}
               margin={{ top: 40, right: 80, bottom: 80, left: 80 }}
               sortByValue
-              colors={["#679b9b", "#aacfcf"]}
+              innerRadius={0.5}
+              colors={["#d4f8e8", "#a1e6e3"]}
               borderColor={{ theme: "labels.text.fill" }}
               radialLabelsSkipAngle={0}
               radialLabelsTextXOffset={9}

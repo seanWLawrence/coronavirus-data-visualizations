@@ -69,7 +69,7 @@ export let Hospitalized = () => {
               data={hospitalized}
               margin={{ top: 40, right: 80, bottom: 80, left: 80 }}
               sortByValue
-              colors={["#f8e1f4", "#efa8e4"]}
+              colors={["#dcd6f7", "#a6b1e1"]}
               borderColor={{ theme: "labels.text.fill" }}
               radialLabelsSkipAngle={0}
               radialLabelsTextXOffset={9}
@@ -83,6 +83,7 @@ export let Hospitalized = () => {
               slicesLabelsTextWeight={900}
               slicesLabelsTextColor="#333333"
               animate={true}
+              innerRadius={0.5}
               motionStiffness={90}
               motionDamping={15}
               tooltip={({ label, tooltipLabel }) => (

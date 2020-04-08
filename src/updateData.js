@@ -1,19 +1,12 @@
 let path = require("path");
 let { writeJsonSync } = require("fs-extra");
 let fetch = require("isomorphic-fetch");
-// let {
-//   scaleOrdinal,
-//   schemeSet1,
-//   arc,
-//   scaleTime,
-//   scaleLinear,
-//   extent,
-//   pie
-// } = require("d3");
+let formatDate = require("date-fns/format");
+let parseIso = require("date-fns/parseISO");
 
-const US_HISTORY_API_URL = "https://covidtracking.com/api/v1/states/daily.json";
-const margin = { left: 50, top: 20, bottom: 20, right: 5 };
-const [VIZ_HEIGHT, VIZ_WIDTH] = [300, 700];
+let DATE_FORMAT = "MM/dd/yyyy";
+
+const US_HISTORY_API_URL = "https://covidtracking.com/api/v1/us/daily.json";
 
 let toPercentage = (num, totalNum) =>
   ((num / totalNum) * 100).toFixed(0).concat("%");
@@ -43,9 +36,11 @@ let toDateString = dateAsIsoNum =>
   ].join("-");
 
 let updateDeaths = data => {
-  let deaths = data.map(({ death: deaths, date }) => {
-    return { date: toDateString(date), deaths };
-  });
+  let deaths = data
+    .map(({ death: deaths, date }) => {
+      return { date: toDateString(date), deaths };
+    })
+    .filter(({ deaths }) => deaths > 100);
 
   let deathsByDate = Object.entries(
     deaths.reduce((result, { date, deaths }) => {
@@ -63,43 +58,26 @@ let updateDeaths = data => {
     }, {})
   );
 
-  let xExtent = extent(deathsByDate, ([date]) => new Date(date));
-  let xScale = scaleTime()
-    .domain(xExtent)
-    .range([margin.left, VIZ_WIDTH - margin.right]);
-
-  let yExtent = extent(deathsByDate, ([, deaths]) => deaths);
-  let yScale = scaleLinear()
-    .domain(yExtent)
-    .range([VIZ_HEIGHT - margin.bottom, margin.top]);
-
-  let colorGenerator = scaleOrdinal(schemeSet1);
-
-  console.log(colorGenerator(0), colorGenerator(1));
-
-  let formattedDeaths = deathsByDate.reduce(
-    (nodes, [dateString, deaths], index) => {
-      let dateObj = new Date(dateString);
-
-      return [
-        ...nodes,
-        {
-          date: dateObj,
-          deaths,
-          x: xScale(dateObj),
-          y: yScale(deaths),
-          height: VIZ_HEIGHT - yScale(deaths),
-          fill: colorGenerator(3)
-        }
-      ];
-    },
-    []
-  );
-
   let totalDeaths = deathsByDate.reduce(
     (totalDeaths, [, deaths]) => totalDeaths + deaths,
     0
   );
+
+  let formattedDeaths = deathsByDate
+    .reduce((nodes, [dateString, deaths], index) => {
+      return [
+        ...nodes,
+        {
+          dateObj: new Date(dateString),
+          date: formatDate(parseIso(dateString), DATE_FORMAT),
+          deaths
+        }
+      ];
+    }, [])
+    .sort((a, b) => {
+      return a.dateObj - b.dateObj;
+    })
+    .map(({ date, deaths }) => ({ date, deaths }));
 
   writeJsonSync(path.join(PUBLIC_PATH, "totalDeaths.json"), {
     data: { deaths: formattedDeaths, totalDeaths }
@@ -215,7 +193,7 @@ async function main() {
 
   let data = await response.json();
 
-  // updateDeaths(data);
+  updateDeaths(data);
   updateTestResults(data);
   updateHospitalized(data);
 

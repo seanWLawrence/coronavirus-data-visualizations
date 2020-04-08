@@ -1,34 +1,14 @@
-import React, { useRef, useState, useEffect } from "react";
-import { VIZ_WIDTH, VIZ_HEIGHT } from "./constants";
+import React, { useState, useEffect } from "react";
+import { ResponsiveBar } from "@nivo/bar";
 import { formattedNumber } from "./lib";
-import {
-  extent,
-  scaleLinear,
-  scaleTime,
-  select,
-  axisLeft,
-  axisBottom
-} from "d3";
-
-interface DeathsNode {
-  x: number;
-  y: number;
-  deaths: number;
-  height: number;
-  date: Date;
-  fill: string;
-}
-
-let margin = { left: 50, top: 20, bottom: 20, right: 5 };
+import { Table } from "./Table";
 
 export let Deaths = () => {
-  let [deaths, setDeaths] = useState<any[]>([]);
-  let [totalDeaths, setTotalDeaths] = useState<string | null>(null);
-  let xAxisRef = useRef(null);
-  let yAxisRef = useRef(null);
+  let [deaths, setDeaths] = useState([]);
+  let [totalDeaths, setTotalDeaths] = useState(null);
 
   useEffect(() => {
-    async function getdeaths() {
+    async function getData() {
       let response = await fetch(process.env.PUBLIC_URL + "/totalDeaths.json");
 
       let {
@@ -36,62 +16,78 @@ export let Deaths = () => {
       } = await response.json();
 
       setDeaths(deaths);
-      setTotalDeaths(formattedNumber(totalDeaths));
+      setTotalDeaths(totalDeaths);
     }
 
-    getdeaths();
+    getData();
   }, []);
 
-  useEffect(() => {
-    if (deaths) {
-      let xExtent = extent(deaths, d => new Date(d.date));
-      let xScale = scaleTime()
-        .domain(xExtent as [Date, Date])
-        .range([margin.left, VIZ_WIDTH - margin.right]);
-      let xAxis = axisBottom(xScale).ticks(5);
-
-      let yExtent = extent(deaths, d => d.deaths);
-      let yScale = scaleLinear()
-        .domain(yExtent as [number, number])
-        .range([VIZ_HEIGHT - margin.bottom, margin.top]);
-      let yAxis = axisLeft(yScale);
-
-      select((xAxisRef.current as unknown) as SVGSVGElement).call(xAxis);
-      select((yAxisRef.current as unknown) as SVGSVGElement).call(yAxis);
-    }
-  }, [deaths]);
-
-  let columnWidth = VIZ_WIDTH / deaths.length;
-
   return (
-    <div>
-      <div>
-        <h2>Total U.S. Deaths: {totalDeaths}</h2>
-      </div>
+    <div style={{ marginBottom: 50 }}>
+      <h2>Total U.S. Deaths - By Date</h2>
+      <p>Compares the number of deaths by date.</p>
 
-      <h2>Total U.S Deaths by Date</h2>
+      {deaths.length > 0 && (
+        <>
+          <div
+            style={{
+              margin: "auto",
+              marginTop: "2rem",
+              maxWidth: "max-content"
+            }}
+          >
+            <Table
+              headers={["Total deaths"]}
+              cells={[formattedNumber(totalDeaths)]}
+            />
+          </div>
 
-      <div style={{ maxWidth: "90vw", margin: "auto" }}>
-        <svg viewBox={`0, 0, ${VIZ_WIDTH}, ${VIZ_HEIGHT}`}>
-          <g ref={yAxisRef} transform={`translate(${margin.left}, 0)`} />
-          <g
-            ref={xAxisRef}
-            transform={`translate(0, ${VIZ_HEIGHT - margin.bottom})`}
-          />
-          {deaths.map(({ x, y, height, date, fill }: DeathsNode) => {
-            return (
-              <rect
-                fill={fill}
-                key={date.toString()}
-                width={columnWidth}
-                height={height - margin.bottom}
-                x={x - 20}
-                y={y}
-              />
-            );
-          })}
-        </svg>
-      </div>
+          <div style={{ minWidth: "90vw", height: 500 }}>
+            <ResponsiveBar
+              data={deaths}
+              indexBy={({ date }) => date}
+              keys={["deaths"]}
+              margin={{ top: 50, right: 130, bottom: 150, left: 100 }}
+              innerPadding={1}
+              colors={["#ffb6b9"]}
+              borderRadius={2}
+              borderColor={{ from: "color", modifiers: [["darker", 1.6]] }}
+              axisTop={null}
+              axisRight={null}
+              axisBottom={{
+                tickSize: 0,
+                tickPadding: 10,
+                tickRotation: -90,
+                legend: "Date",
+                legendPosition: "middle",
+                legendOffset: 90
+              }}
+              axisLeft={{
+                tickSize: 0,
+                tickPadding: 2,
+                tickRotation: 0,
+                legend: "Deaths",
+                legendPosition: "middle",
+                legendOffset: -50
+              }}
+              labelSkipWidth={14}
+              labelSkipHeight={2}
+              labelTextColor={{ from: "color", modifiers: [["darker", 1.6]] }}
+              // @ts-ignore
+              label={d => formattedNumber(d.value)}
+              animate={true}
+              motionStiffness={90}
+              motionDamping={15}
+              tooltip={({ data: { date, deaths } }) => (
+                <span>
+                  <strong>{formattedNumber(deaths as number)}</strong> deaths as
+                  of <strong>{date}</strong>
+                </span>
+              )}
+            />
+          </div>
+        </>
+      )}
     </div>
   );
 };
