@@ -3,7 +3,7 @@ export let formattedNumber = (num: number | null): string => {
     return "";
   }
 
-  let str = num.toString();
+  let str = num.toString().split(".")[0];
   let length = str.length;
 
   // @ts-ignore

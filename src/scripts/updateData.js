@@ -1,12 +1,13 @@
 let path = require("path");
-let { writeJsonSync, pathExistsSync } = require("fs-extra");
+let { writeJsonSync, readJsonSync } = require("fs-extra");
 let fetch = require("isomorphic-fetch");
 let formatDate = require("date-fns/format");
 let parseIso = require("date-fns/parseISO");
 
 let DATE_FORMAT = "MM/dd/yyyy";
 
-const US_HISTORY_API_URL = "https://covidtracking.com/api/v1/us/daily.json";
+const US_API_URL = "https://covidtracking.com/api/v1/us/daily.json";
+const STATES_API_URL = "https://covidtracking.com/api/v1/states/daily.json";
 
 let toPercentage = (num, totalNum) =>
   ((num / totalNum) * 100).toFixed(0).concat("%");
@@ -35,7 +36,7 @@ let toDateString = dateAsIsoNum =>
     String(dateAsIsoNum).slice(6, 8)
   ].join("-");
 
-let updateDeaths = data => {
+let updateDeathsByDate = data => {
   let deaths = data
     .map(({ death: deaths, date }) => {
       return { date: toDateString(date), deaths };
@@ -86,7 +87,68 @@ let updateDeaths = data => {
   console.log("Wrote deathsByDate.json...");
 };
 
-let updateTestResults = data => {
+let updateDeathsByState = data => {
+  let deaths = data.map(({ death: deaths, state, fips }) => {
+    return { state, deaths, fips };
+  });
+
+  let deathsByState = Object.entries(
+    deaths.reduce((result, { state, deaths, fips }) => {
+      if (result[state] !== undefined) {
+        return {
+          ...result,
+          [state]: {
+            ...result[state],
+            deaths: result[state].deaths + (deaths || 0)
+          }
+        };
+      }
+
+      return {
+        ...result,
+        [state]: { deaths, fips }
+      };
+    }, {})
+  );
+
+  let formattedDeaths = deathsByState.map(([state, { deaths, fips }]) => ({
+    id: fips,
+    state,
+    deaths
+  }));
+
+  let maxDeathsPerState = Math.max(
+    ...formattedDeaths.map(({ deaths }) => deaths)
+  );
+
+  let minDeathsPerState = Math.min(
+    ...formattedDeaths.map(({ deaths }) => deaths)
+  );
+
+  writeJsonSync(path.join(PUBLIC_PATH, "deathsByState.json"), {
+    data: {
+      deathsByState: formattedDeaths,
+      maxDeathsPerState,
+      minDeathsPerState
+    }
+  });
+
+  let geoData = readJsonSync(path.join(PUBLIC_PATH, "usStatesGeo.json"));
+
+  writeJsonSync(path.join(PUBLIC_PATH, "usStatesGeo.json"), {
+    ...geoData,
+    features: geoData.features.map(d => ({
+      ...d,
+      properties: d.properties,
+      geometry: d.geometry,
+      id: d.properties.STATE
+    }))
+  });
+
+  console.log("Wrote deathsByState.json...");
+};
+
+let updateTestResultsPositiveVsNegative = data => {
   let testResultsObj = data.reduce(
     (resultsObj, { positive, negative }) => {
       return {
@@ -138,7 +200,7 @@ let updateTestResults = data => {
   console.log("Wrote testResultsPositiveVsNegative.json...");
 };
 
-let updateHospitalized = data => {
+let updateHospitalizedAliveVsDeceased = data => {
   let hospitalizedObj = data.reduce(
     (resultsObj, { hospitalized, death }) => {
       return {
@@ -187,30 +249,17 @@ let updateHospitalized = data => {
 
   console.log("Wrote hospitalizedAliveVsDeceased.json...");
 };
-
-let getUsStatesTopoJson = async () => {
-  if (pathExistsSync(path.join(PUBLIC_PATH, "usStatesTopo.json"))) {
-    return console.log(
-      "U.S States Topo JSON file already downloaded. Skipping..."
-    );
-  }
-  let response = await fetch("https://d3js.org/us-10m.v1.json");
-  let data = await response.json();
-
-  writeJsonSync(path.join(PUBLIC_PATH, "usStatesTopo.json"), data);
-
-  console.log("Wrote usStatesTopo.json...");
-};
-
 async function main() {
-  let response = await fetch(US_HISTORY_API_URL);
+  let usResponse = await fetch(US_API_URL);
+  let statesResponse = await fetch(STATES_API_URL);
 
-  let data = await response.json();
+  let usData = await usResponse.json();
+  let statesData = await statesResponse.json();
 
-  updateDeaths(data);
-  updateTestResults(data);
-  updateHospitalized(data);
-  await getUsStatesTopoJson();
+  updateDeathsByDate(usData);
+  updateDeathsByState(statesData);
+  updateTestResultsPositiveVsNegative(usData);
+  updateHospitalizedAliveVsDeceased(usData);
 
   console.log(
     "\n-------------------------------------------------------------"

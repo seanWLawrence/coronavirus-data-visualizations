@@ -15,7 +15,7 @@ export let TestResultsPositiveVsNegative = () => {
   useEffect(() => {
     async function getData() {
       let response = await fetch(
-        process.env.PUBLIC_URL + "/totalTestResults.json"
+        process.env.PUBLIC_URL + "/testResultsPositiveVsNegative.json"
       );
 
       let {

@@ -15,7 +15,7 @@ export let HospitalizedAliveVsDeceased = () => {
   useEffect(() => {
     async function getData() {
       let response = await fetch(
-        process.env.PUBLIC_URL + "/totalHospitalizedAndDeaths.json"
+        process.env.PUBLIC_URL + "/hospitalizedAliveVsDeceased.json"
       );
 
       let {
