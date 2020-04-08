@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { ResponsiveBar } from "@nivo/bar";
-import { formattedNumber } from "./lib";
-import { Table } from "./Table";
 
-export let Deaths = () => {
+import { formattedNumber } from "../lib";
+import { Table } from "../components/Table";
+
+export let DeathsByDate = () => {
   let [deaths, setDeaths] = useState([]);
   let [totalDeaths, setTotalDeaths] = useState(null);
 
   useEffect(() => {
     async function getData() {
-      let response = await fetch(process.env.PUBLIC_URL + "/totalDeaths.json");
+      let response = await fetch(process.env.PUBLIC_URL + "/deathsByDate.json");
 
       let {
         data: { deaths, totalDeaths }
@@ -49,7 +50,7 @@ export let Deaths = () => {
               keys={["deaths"]}
               margin={{ top: 50, right: 130, bottom: 150, left: 100 }}
               innerPadding={1}
-              colors={["#ffb6b9"]}
+              colors={["#ffddcc"]}
               borderRadius={2}
               borderColor={{ from: "color", modifiers: [["darker", 1.6]] }}
               axisTop={null}

@@ -1,5 +1,5 @@
 let path = require("path");
-let { writeJsonSync } = require("fs-extra");
+let { writeJsonSync, pathExistsSync } = require("fs-extra");
 let fetch = require("isomorphic-fetch");
 let formatDate = require("date-fns/format");
 let parseIso = require("date-fns/parseISO");
@@ -27,7 +27,7 @@ let formattedNumber = num => {
     .join("");
 };
 
-const PUBLIC_PATH = path.join(__dirname, "../public");
+const PUBLIC_PATH = path.join(__dirname, "../../public");
 let toDateString = dateAsIsoNum =>
   [
     String(dateAsIsoNum).slice(0, 4),
@@ -79,11 +79,11 @@ let updateDeaths = data => {
     })
     .map(({ date, deaths }) => ({ date, deaths }));
 
-  writeJsonSync(path.join(PUBLIC_PATH, "totalDeaths.json"), {
+  writeJsonSync(path.join(PUBLIC_PATH, "deathsByDate.json"), {
     data: { deaths: formattedDeaths, totalDeaths }
   });
 
-  console.log("Wrote totalDeaths.json...");
+  console.log("Wrote deathsByDate.json...");
 };
 
 let updateTestResults = data => {
@@ -126,7 +126,7 @@ let updateTestResults = data => {
     }
   ];
 
-  writeJsonSync(path.join(PUBLIC_PATH, "totalTestResults.json"), {
+  writeJsonSync(path.join(PUBLIC_PATH, "testResultsPositiveVsNegative.json"), {
     data: {
       testResults: formattedTestResults,
       totalTestResults,
@@ -135,7 +135,7 @@ let updateTestResults = data => {
     }
   });
 
-  console.log("Wrote totalTestResults.json...");
+  console.log("Wrote testResultsPositiveVsNegative.json...");
 };
 
 let updateHospitalized = data => {
@@ -176,7 +176,7 @@ let updateHospitalized = data => {
     }
   ];
 
-  writeJsonSync(path.join(PUBLIC_PATH, "totalHospitalizedAndDeaths.json"), {
+  writeJsonSync(path.join(PUBLIC_PATH, "hospitalizedAliveVsDeceased.json"), {
     data: {
       hospitalized: formattedHospitalized,
       totalHospitalized,
@@ -185,7 +185,21 @@ let updateHospitalized = data => {
     }
   });
 
-  console.log("Wrote totalTestHospitalized.json...");
+  console.log("Wrote hospitalizedAliveVsDeceased.json...");
+};
+
+let getUsStatesTopoJson = async () => {
+  if (pathExistsSync(path.join(PUBLIC_PATH, "usStatesTopo.json"))) {
+    return console.log(
+      "U.S States Topo JSON file already downloaded. Skipping..."
+    );
+  }
+  let response = await fetch("https://d3js.org/us-10m.v1.json");
+  let data = await response.json();
+
+  writeJsonSync(path.join(PUBLIC_PATH, "usStatesTopo.json"), data);
+
+  console.log("Wrote usStatesTopo.json...");
 };
 
 async function main() {
@@ -196,6 +210,7 @@ async function main() {
   updateDeaths(data);
   updateTestResults(data);
   updateHospitalized(data);
+  await getUsStatesTopoJson();
 
   console.log(
     "\n-------------------------------------------------------------"

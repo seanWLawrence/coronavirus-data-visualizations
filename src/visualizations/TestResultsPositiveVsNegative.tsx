@@ -1,31 +1,32 @@
 import React, { useState, useEffect } from "react";
 import { ResponsivePie } from "@nivo/pie";
-import { formattedNumber } from "./lib";
-import { Table } from "./Table";
 
-export let Hospitalized = () => {
-  let [hospitalized, setHospitalized] = useState([]);
-  let [totalHospitalizedAndDeaths, setTotalHospitalizedAndDeaths] = useState({
-    hospitalized: null,
-    alive: null,
-    deaths: null
+import { formattedNumber } from "../lib";
+import { Table } from "../components/Table";
+
+export let TestResultsPositiveVsNegative = () => {
+  let [testResults, setTestResults] = useState([]);
+  let [totalTestResults, setTotalTestResults] = useState({
+    testResults: null,
+    positive: null,
+    negative: null
   });
 
   useEffect(() => {
     async function getData() {
       let response = await fetch(
-        process.env.PUBLIC_URL + "/totalHospitalizedAndDeaths.json"
+        process.env.PUBLIC_URL + "/totalTestResults.json"
       );
 
       let {
-        data: { hospitalized, totalHospitalized, totalDeaths, totalAlive }
+        data: { testResults, totalTestResults, totalPositive, totalNegative }
       } = await response.json();
 
-      setHospitalized(hospitalized);
-      setTotalHospitalizedAndDeaths({
-        hospitalized: totalHospitalized,
-        deaths: totalDeaths,
-        alive: totalAlive
+      setTestResults(testResults);
+      setTotalTestResults({
+        testResults: totalTestResults,
+        positive: totalPositive,
+        negative: totalNegative
       });
     }
 
@@ -34,19 +35,13 @@ export let Hospitalized = () => {
 
   return (
     <div style={{ marginBottom: 50 }}>
-      <h2>Total U.S. Hospitalized - Alive vs. Deceased</h2>
+      <h2>Total U.S. Test Results - Positive vs. Negative</h2>
       <p>
-        Compares the ratio of people that were hospitalized and still alive with
-        the number of deceased.
+        Compares the ratio of test results that were positive or negative for
+        coronavirus.
       </p>
-      <aside>
-        <p>
-          Note: some of the deaths may have been from people that were{" "}
-          <em>not</em> hospitalized. This is a rough estimate.
-        </p>
-      </aside>
 
-      {hospitalized.length > 0 && (
+      {testResults.length > 0 && (
         <>
           <div
             style={{
@@ -56,20 +51,25 @@ export let Hospitalized = () => {
             }}
           >
             <Table
-              headers={["Total hospitalized", "Total deceased", "Total alive"]}
+              headers={[
+                "Total test results",
+                "Total positive",
+                "Total negative"
+              ]}
               cells={[
-                formattedNumber(totalHospitalizedAndDeaths.hospitalized),
-                formattedNumber(totalHospitalizedAndDeaths.deaths),
-                formattedNumber(totalHospitalizedAndDeaths.alive)
+                formattedNumber(totalTestResults.testResults),
+                formattedNumber(totalTestResults.positive),
+                formattedNumber(totalTestResults.negative)
               ]}
             />
           </div>
           <div style={{ minWidth: "90vw", height: 500 }}>
             <ResponsivePie
-              data={hospitalized}
+              data={testResults}
               margin={{ top: 40, right: 80, bottom: 80, left: 80 }}
               sortByValue
-              colors={["#dcd6f7", "#a6b1e1"]}
+              innerRadius={0.5}
+              colors={["#d4f8e8", "#a1e6e3"]}
               borderColor={{ theme: "labels.text.fill" }}
               radialLabelsSkipAngle={0}
               radialLabelsTextXOffset={9}
@@ -79,11 +79,12 @@ export let Hospitalized = () => {
               radialLabelsLinkHorizontalLength={13}
               radialLabelsLinkStrokeWidth={1}
               radialLabelsLinkColor={{ from: "color" }}
+              // @ts-ignore
+              sliceLabel={({ sliceLabel }) => sliceLabel}
               slicesLabelsSkipAngle={10}
               slicesLabelsTextWeight={900}
               slicesLabelsTextColor="#333333"
               animate={true}
-              innerRadius={0.5}
               motionStiffness={90}
               motionDamping={15}
               tooltip={({ label, tooltipLabel }) => (
@@ -92,7 +93,6 @@ export let Hospitalized = () => {
                 </span>
               )}
               // @ts-ignore
-              sliceLabel={d => d.sliceLabel}
               legends={[
                 {
                   anchor: "bottom",

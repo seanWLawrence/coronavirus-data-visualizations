@@ -1,7 +1,8 @@
 import React from "react";
-import { Deaths } from "./Deaths";
-import { TestResults } from "./TestResults";
-import { Hospitalized } from "./Hospitalized";
+import { DeathsByDate } from "./visualizations/DeathsByDate";
+import { DeathsByState } from "./visualizations/DeathsByState";
+import { TestResultsPositiveVsNegative } from "./visualizations/TestResultsPositiveVsNegative";
+import { HospitalizedAliveVsDeceased } from "./visualizations/HospitalizedAliveVsDeceased";
 import "./App.css";
 
 function App() {
@@ -23,9 +24,10 @@ function App() {
         </p>
       </div>
 
-      <Deaths />
-      <TestResults />
-      <Hospitalized />
+      <DeathsByState />
+      <DeathsByDate />
+      <TestResultsPositiveVsNegative />
+      <HospitalizedAliveVsDeceased />
     </div>
   );
 }
