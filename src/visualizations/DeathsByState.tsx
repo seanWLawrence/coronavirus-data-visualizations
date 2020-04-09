@@ -171,19 +171,19 @@ export let DeathsByState = () => {
 
               <button
                 className="button--solid"
-                style={{ marginRight: ".5rem" }}
                 onClick={increaseDomain}
+                style={{ marginRight: ".5rem" }}
                 disabled={domain === maxDeathsPerState}
               >
-                Increase &minus;
+                Decrease &minus;
               </button>
 
               <button
                 className="button--solid"
-                onClick={decreaseDomain}
                 disabled={domain === 100}
+                onClick={decreaseDomain}
               >
-                Decrease &#x2b;
+                Increase &#x2b;
               </button>
             </div>
 
