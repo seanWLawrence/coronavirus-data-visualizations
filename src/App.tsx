@@ -22,6 +22,8 @@ function App() {
             View the open source repository
           </a>
         </p>
+
+        <p>This page is best viewed on a high resultion desktop</p>
       </div>
 
       <DeathsAsOfDate />

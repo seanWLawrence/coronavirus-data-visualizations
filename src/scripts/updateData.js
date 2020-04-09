@@ -136,12 +136,16 @@ let updateDeathsByState = data => {
 
   writeJsonSync(path.join(PUBLIC_PATH, "usStatesGeo.json"), {
     ...geoData,
-    features: geoData.features.map(d => ({
-      ...d,
-      properties: d.properties,
-      geometry: d.geometry,
-      id: d.properties.STATE
-    }))
+    features: geoData.features
+      .filter(({ properties: { NAME } }) => {
+        return !["Hawaii", "Alaska", "Puerto Rico", "Guam"].includes(NAME);
+      })
+      .map(d => ({
+        ...d,
+        properties: d.properties,
+        geometry: d.geometry,
+        id: d.properties.STATE
+      }))
   });
 
   console.log("Wrote deathsByState.json...");
