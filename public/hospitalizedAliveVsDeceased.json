@@ -1,1 +1,1 @@
-{"data":{"hospitalized":[{"id":"Alive","label":"Alive","value":32664,"tooltipLabel":"32,664 (69%)","sliceLabel":"69%"},{"id":"Deceased","label":"Deceased","value":14495,"tooltipLabel":"14,495 (31%)","sliceLabel":"31%"}],"totalHospitalized":47159,"totalAlive":32664,"totalDeaths":14495}}
+{"data":{"hospitalized":[{"id":"Alive","label":"Alive","value":30775,"tooltipLabel":"30,775 (60%)","sliceLabel":"60%"},{"id":"Deceased","label":"Deceased","value":20339,"tooltipLabel":"20,339 (40%)","sliceLabel":"40%"}],"totalHospitalized":51114,"totalAlive":30775,"totalDeaths":20339}}
