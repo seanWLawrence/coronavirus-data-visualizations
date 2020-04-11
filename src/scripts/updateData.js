@@ -105,7 +105,7 @@ let updateDeathsByState = data => {
 
       return {
         ...result,
-        [state]: { deaths, fips }
+        [state]: { deaths: deaths || 0, fips }
       };
     }, {})
   );
