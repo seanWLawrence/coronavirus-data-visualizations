@@ -50,6 +50,8 @@
     "isomorphic-fetch": "^2.2.1"
   },
   "husky": {
-    "pre-push": "yarn updateData"
+    "hooks": {
+      "pre-push": "yarn updateData"
+    }
   }
 }
