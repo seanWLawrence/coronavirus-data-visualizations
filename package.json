@@ -27,8 +27,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "updateData": "node src/scripts/updateData && git add . && git commit -m 'Updating data'",
-    "deploy": "yarn updateData && git push"
+    "updateData": "node src/scripts/updateData"
   },
   "eslintConfig": {
     "extends": "react-app"
