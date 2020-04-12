@@ -14,6 +14,11 @@ Data visualizations for Covid-19 statistics taken from covidtracking.com's API.
 - Test Results - Positive vs. Negative
     - Pie chart showing percentage and sum of positive vs. negative test results
 
+## How it works
+
+- Push to Git
+- Jenkins will run the build script
+
 ## TODO
 
 - Make map more responsive
