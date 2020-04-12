@@ -16,8 +16,10 @@ Data visualizations for Covid-19 statistics taken from covidtracking.com's API.
 
 ## How it works
 
-- Push to Git
-- Jenkins will run the build script
+- Node script pulls data and saves in public folder as json files, preformatted
+    for data visualization
+- Jenkins server runs in EC2 instance and runs the build script daily to ensure
+    the data is at least 24 hours up to date
 
 ## TODO
 
