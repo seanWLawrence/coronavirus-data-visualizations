@@ -20,6 +20,8 @@ Data visualizations for Covid-19 statistics taken from covidtracking.com's API.
     for data visualization
 - Jenkins server runs in EC2 instance and runs the build script daily to ensure
     the data is at least 24 hours up to date
+- Jenkins also rebuilds the site through a GitHub webhook that gets triggered on
+    a push to this repo
 
 ## TODO
 
