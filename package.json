@@ -27,7 +27,8 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "updateData": "node src/scripts/updateData"
+    "updateData": "node src/scripts/updateData",
+    "commitAndPushIfDataChanged": "node src/scripts/commitAndPushIfDataChanged"
   },
   "eslintConfig": {
     "extends": "react-app"
