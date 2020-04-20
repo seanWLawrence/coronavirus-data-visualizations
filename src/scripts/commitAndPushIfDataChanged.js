@@ -16,7 +16,11 @@ if (dataHasChanged) {
   // commit changes with today's date
   spawnSync(
     "git",
-    ["commit", "-m", `"Updating data on ${new Date().toISOString()}"`],
+    [
+      "commit",
+      "-m",
+      `"Updating data on ${new Date().toISOString().split("T")[0]}"`
+    ],
     { stdio: "inherit" }
   );
 
